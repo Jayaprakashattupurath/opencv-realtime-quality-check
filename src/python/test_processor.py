@@ -57,6 +57,22 @@ class TestAnalyzeImage(unittest.TestCase):
         finally:
             os.remove(tmp_path)
 
+    def test_flat_image_flags_too_blurry(self):
+        flat = np.full((120, 160, 3), 127, dtype=np.uint8)
+
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
+            tmp_path = f.name
+
+        try:
+            cv2.imwrite(tmp_path, flat)
+            result = analyze_image(tmp_path)
+
+            self.assertTrue(result["ok"])
+            self.assertIn("too_blurry", result["issues"])
+            self.assertEqual(result["status"], "needs_attention")
+        finally:
+            os.remove(tmp_path)
+
     def test_checkerboard_is_sharper_than_flat_image(self):
         flat = np.full((120, 160, 3), 127, dtype=np.uint8)
 
